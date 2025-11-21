@@ -12,30 +12,6 @@
             </PendingDiffInfo>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/core/api/models/__init__.py">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/core/api/models/__init__.py" />
-              <option name="updatedContent" value="# paquete models&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/core/api/models/entities/__init__.py">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/core/api/models/entities/__init__.py" />
-              <option name="updatedContent" value="# paquete entities&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/core/api/views/__init__.py">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/core/api/views/__init__.py" />
-              <option name="updatedContent" value="# paquete de vistas&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/core/core/settings.py">
           <value>
             <PendingDiffInfo>

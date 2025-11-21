@@ -1,53 +1,38 @@
 # core/api/services/gene_service.py
-from core.api.exceptions.gene_exceptions import FieldNotFilledException
-from core.api.models.entities.gene import Gene
+
+from ..models.entities.gene import Gene
+from ..exceptions.gene_exceptions import FieldNotFilledException
+
 class GeneService:
 
     @staticmethod
     def list_genes():
+        """Obtiene todos los genes de la base de datos."""
         return Gene.objects.all()
 
     @staticmethod
     def get_gene(id):
+        """Obtiene un gene específico por su id."""
         return Gene.objects.get(pk=id)
 
     @staticmethod
     def create_gene(data):
-        symbol = data.get("symbol")
-        full_name = data.get("fullName")
-        function_summary = data.get("functionSummary")
+        """Crea un nuevo gene en la base de datos."""
+        if not data['symbol']:
+            raise FieldNotFilledException("Symbol is required")
 
-        if not symbol or symbol.strip() == "":
-            raise FieldNotFilledException("symbol is required")
-
-        if not full_name or full_name.strip() == "":
-            raise FieldNotFilledException("fullName is required")
-
-        if not function_summary or function_summary.strip() == "":
-            raise FieldNotFilledException("functionSummary is required")
-
-        return Gene.objects.create(**data)
+        gene = Gene.objects.create(**data)  # Creación del gene en la base de datos
+        return gene
 
     @staticmethod
-    def update_gene(instance, validated_data):
-        symbol = validated_data.get("symbol")
-        fullName = validated_data.get("fullName")
-        functionSummary = validated_data.get("functionSummary")
-
-        if not symbol or symbol.strip() == "":
-            raise FieldNotFilledException("symbol is required")
-
-        if not fullName or fullName.strip() == "":
-            raise FieldNotFilledException("fullName is required")
-
-        if not functionSummary or functionSummary.strip() == "":
-            raise FieldNotFilledException("functionSummary is required")
-
+    def update_gene(gene, validated_data):
+        """Actualiza un gene existente."""
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+            setattr(gene, attr, value)  # Establece el valor de cada campo actualizado
+        gene.save()  # Guarda los cambios
+        return gene
 
     @staticmethod
-    def delete_gene(instance):
-        instance.delete()
+    def delete_gene(gene):
+        """Elimina un gene de la base de datos."""
+        gene.delete()
