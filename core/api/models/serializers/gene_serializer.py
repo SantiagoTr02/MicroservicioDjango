@@ -6,4 +6,9 @@ from ..entities.gene import Gene  # Import relativo correcto dentro de la app 'a
 class GeneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gene
-        fields = ['id', 'symbol', 'fullName', 'functionSummary']
+        fields = [
+            'id',
+            'symbol',
+            'fullName',
+            'functionSummary'
+        ]
