@@ -1,0 +1,37 @@
+# core/api/services/patient_genetic_variant_service.py
+from uuid import uuid4
+from ..models.entities.patient_genetic_variant import PatientGeneticVariant
+from ..models.entities.patient import Patient
+from ..models.entities.genetic_variant import GeneticVariant
+
+class GeneticVariantPatientService:
+    @staticmethod
+    def assign_variant_to_patient(patientId, variantId, detectionDate, alleleFrequency):
+        # Validar existencia del paciente
+        try:
+            Patient.objects.get(id=patientId)
+        except Patient.DoesNotExist:
+            return {"detail": "Patient not found"}, 404
+
+        # Validar existencia de la variante genética
+        try:
+            GeneticVariant.objects.get(id=variantId)
+        except GeneticVariant.DoesNotExist:
+            return {"detail": "Genetic variant not found"}, 404
+
+        # Crear la relación (OJO: usar patient_id / variant_id)
+        relation = PatientGeneticVariant.objects.create(
+            patient_id=patientId,       # <- nombre del campo: patient
+            variant_id=variantId,       # <- nombre del campo: variant
+            detectionDate=detectionDate,
+            alleleFrequency=alleleFrequency
+        )
+
+        return relation
+
+    @staticmethod
+    def list_patient_variant_reports():
+        return PatientGeneticVariant.objects.select_related(
+            "patient",          # FK a Patient
+            "variant__geneId"   # FK de Variant a Gene
+        ).all()
