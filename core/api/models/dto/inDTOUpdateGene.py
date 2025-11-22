@@ -6,5 +6,4 @@ class InDTOUpdateGene(BaseModel):
     functionSummary: str = Field(None, example="Gene associated with breast cancer risk", description="Descripción funcional del gen")
 
     class Config:
-        str_min_length = 1
         str_strip_whitespace = True
