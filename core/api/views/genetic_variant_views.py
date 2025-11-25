@@ -2,6 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ..exceptions.genetic_variant_exceptions import GeneNotFoundException, GeneticVariantInvalidDataFormatException, \
+    GeneticVariantFieldNotFilledException, GeneticVariantDeletionNotAllowedException, GeneticVariantNotFoundException, \
+    GeneticVariantAlreadyExistsException
 from ..models.dto.inDTOUpdateGeneticVariant import InDTOUpdateGeneticVariant
 from ..models.dto.outDTOGetSpecificGeneticVariant import OutDTOGetSpecificGeneticVariant
 from ..models.dto.outDTOListGeneticVariant import OutDTOListGeneticVariant
@@ -18,17 +21,46 @@ class GeneticVariantViewSet(viewsets.ModelViewSet):
     serializer_class = GeneticVariantSerializer
 
     def create(self, request, *args, **kwargs):
-        # Obtenemos los datos de la solicitud
-        variant_data = request.data
+        try:
+            # 1) Validar input con Pydantic
+            dto = InDTOCreateGeneticVariant(**request.data)
+            data = dto.dict()
 
-        # Usamos el servicio para crear la variante genética
-        result = GeneticVariantService.create_variant(variant_data)
+            # 2) Crear usando el servicio (validaciones de dominio)
+            created_variant = GeneticVariantService.create_variant(data)
 
-        if isinstance(result, tuple) and result[1] == 400:  # Si es un error, devolvemos el mensaje de error
-            return Response(result[0], status=status.HTTP_400_BAD_REQUEST)
+            # 3) Responder con DTO de salida
+            return Response(
+                OutDTOCreateGeneticVariant.from_orm(created_variant).dict(),
+                status=status.HTTP_201_CREATED,
+            )
 
-        # Si la creación fue exitosa, devolvemos solo los detalles básicos de la variante
-        return Response(OutDTOCreateGeneticVariant.from_orm(result).dict(), status=status.HTTP_201_CREATED)
+        except GeneticVariantFieldNotFilledException as e:
+            return Response(
+                {"error": "FIELD_NOT_FILLED", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except GeneticVariantInvalidDataFormatException as e:
+            return Response(
+                {"error": "INVALID_DATA_FORMAT", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except GeneNotFoundException as e:
+            return Response(
+                {"error": "GENE_NOT_FOUND", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except GeneticVariantAlreadyExistsException as e:
+            return Response(
+                {"error": "GENETIC_VARIANT_ALREADY_EXISTS", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except ValidationError as e:
+            # Errores de Pydantic (tipos, campos faltantes, etc.)
+            return Response(
+                {"error": "VALIDATION_ERROR", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def list(self, request, *args, **kwargs):
         variants = GeneticVariantService.list_variants()  # Obtenemos todas las variantes
@@ -53,12 +85,40 @@ class GeneticVariantViewSet(viewsets.ModelViewSet):
 
 
     def destroy(self, request, *args, **kwargs):
-        """Elimina una variante genética usando su ID (UUID)."""
-        variant_id = kwargs.get('pk')  # Extraemos el ID de la variante desde la URL
+        """
+        Elimina una variante genética usando su ID (UUID)
+        y devuelve mensajes bonitos.
+        """
+        variant_id = kwargs.get("pk")
 
-        result, http_status = GeneticVariantService.delete_variant(variant_id)
+        try:
+            GeneticVariantService.delete_variant(variant_id)
 
-        return Response(result, status=http_status)
+            return Response(
+                {
+                    "message": "Genetic variant deleted successfully",
+                    "id": variant_id,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except GeneticVariantNotFoundException as e:
+            return Response(
+                {
+                    "error": "GENETIC_VARIANT_NOT_FOUND",
+                    "detail": str(e),
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except GeneticVariantDeletionNotAllowedException as e:
+            return Response(
+                {
+                    "error": "GENETIC_VARIANT_DELETION_NOT_ALLOWED",
+                    "detail": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class GeneticVariantDetailView(APIView):

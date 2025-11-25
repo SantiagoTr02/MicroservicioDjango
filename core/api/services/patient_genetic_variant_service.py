@@ -1,5 +1,8 @@
 # core/api/services/patient_genetic_variant_service.py
 from uuid import uuid4
+
+from ..exceptions.patient_genetic_variant_exceptions import PatientGeneticVariantAlreadyExistsException, \
+    PatientGeneticVariantFieldNotFilledException, PatientGeneticVariantInvalidDataFormatException
 from ..models.entities.patient_genetic_variant import PatientGeneticVariant
 from ..models.entities.patient import Patient
 from ..models.entities.genetic_variant import GeneticVariant
@@ -7,15 +10,25 @@ from ..models.entities.genetic_variant import GeneticVariant
 class GeneticVariantPatientService:
     @staticmethod
     def assign_variant_to_patient(patientId, variantId, detectionDate, alleleFrequency):
+        # Validar campos obligatorios antes de pasar a Pydantic
+        if not patientId:
+            raise PatientGeneticVariantFieldNotFilledException("The field 'patientId' is required.")
+        if not variantId:
+            raise PatientGeneticVariantFieldNotFilledException("The field 'variantId' is required.")
+        if not detectionDate:
+            raise PatientGeneticVariantFieldNotFilledException("The field 'detectionDate' is required.")
+        if alleleFrequency is None:
+            raise PatientGeneticVariantFieldNotFilledException("The field 'alleleFrequency' is required.")
+
         # Validar existencia del paciente
         try:
-            Patient.objects.get(id=patientId)
+            patient = Patient.objects.get(id=patientId)
         except Patient.DoesNotExist:
             return {"detail": "Patient not found"}, 404
 
         # Validar existencia de la variante genética
         try:
-            GeneticVariant.objects.get(id=variantId)
+            variant = GeneticVariant.objects.get(id=variantId)
         except GeneticVariant.DoesNotExist:
             return {"detail": "Genetic variant not found"}, 404
 

@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from pydantic import ValidationError
 
+from ..exceptions.patient_genetic_variant_exceptions import PatientGeneticVariantAlreadyExistsException, \
+    PatientGeneticVariantInvalidDataFormatException, PatientGeneticVariantFieldNotFilledException
 from ..services.patient_genetic_variant_service import GeneticVariantPatientService
 from ..models.dto.inDTOAssignVariantToPatient import InDTOAssignVariantToPatient
 from ..models.dto.outDTOAssignVariantToPatient import OutDTOAssignVariantToPatient
@@ -35,8 +37,27 @@ class AssignGeneticVariantToPatientView(APIView):
 
             return Response(response_data.dict(), status=status.HTTP_201_CREATED)
 
+        except PatientGeneticVariantAlreadyExistsException as e:
+            return Response(
+                {"error": "VARIANT_ALREADY_ASSIGNED", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except PatientGeneticVariantFieldNotFilledException as e:
+            return Response(
+                {"error": "FIELD_NOT_FILLED", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except PatientGeneticVariantInvalidDataFormatException as e:
+            return Response(
+                {"error": "INVALID_DATA_FORMAT", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except ValidationError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Errores de Pydantic (tipos, campos faltantes, etc.)
+            return Response(
+                {"error": "VALIDATION_ERROR", "detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class ListPatientVariantReportsView(APIView):
