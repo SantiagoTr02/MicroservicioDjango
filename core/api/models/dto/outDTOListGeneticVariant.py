@@ -3,7 +3,7 @@ from typing import Dict
 
 class OutDTOListGeneticVariant(BaseModel):
     id: str
-    geneId: Dict[str, str]  # Aquí seguimos con el formato de diccionario para la información del gene
+    geneId: Dict[str, str]
     chromosome: str
     position: int
     referenceBase: str
@@ -19,7 +19,7 @@ class OutDTOListGeneticVariant(BaseModel):
         return cls(
             id=str(obj.id),  # Convertimos el UUID a string
             geneId={
-                "id": str(obj.geneId.id),  # Aquí convertimos el id a string para cumplir con el tipo de pydantic
+                "id": str(obj.geneId.id),
                 "symbol": obj.geneId.symbol,
                 "fullName": obj.geneId.fullName,
                 "functionSummary": obj.geneId.functionSummary

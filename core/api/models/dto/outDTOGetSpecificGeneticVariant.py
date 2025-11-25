@@ -3,7 +3,7 @@ from typing import Dict
 
 class OutDTOGetSpecificGeneticVariant(BaseModel):
     id: str
-    geneId: Dict[str, str]  # El geneId será un diccionario con el ID y otros detalles del gene
+    geneId: Dict[str, str]
     chromosome: str
     position: int
     referenceBase: str
@@ -11,4 +11,4 @@ class OutDTOGetSpecificGeneticVariant(BaseModel):
     impact: str
 
     class Config:
-        from_attributes = True  # Esto permite convertir el objeto ORM a un modelo Pydantic
+        from_attributes = True

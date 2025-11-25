@@ -7,4 +7,4 @@ class OutDTOUpdateGene(BaseModel):
     functionSummary: str
 
     class Config:
-        from_attributes = True  # Habilita la compatibilidad con ORM (Django Models)
+        from_attributes = True

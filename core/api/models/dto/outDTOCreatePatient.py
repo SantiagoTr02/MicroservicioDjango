@@ -1,6 +1,5 @@
-# core/api/models/dto/outDTOCreatePatient.py
+
 from pydantic import BaseModel
-from typing import Optional
 from datetime import date
 
 class OutDTOCreatePatient(BaseModel):
@@ -12,4 +11,4 @@ class OutDTOCreatePatient(BaseModel):
     status: str
 
     class Config:
-        from_attributes = True  # Permite la conversión automática
+        from_attributes = True

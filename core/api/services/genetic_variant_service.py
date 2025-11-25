@@ -1,29 +1,26 @@
 from sqlite3 import IntegrityError
 
 from django.core.exceptions import ObjectDoesNotExist
-from drf_yasg.openapi import Response
-from rest_framework import status
 
 from ..exceptions.genetic_variant_exceptions import GeneticVariantInvalidDataFormatException, \
     GeneticVariantFieldNotFilledException, GeneNotFoundException, GeneticVariantNotFoundException, \
     GeneticVariantDeletionNotAllowedException, GeneticVariantAlreadyExistsException
 from ..models.entities.genetic_variant import GeneticVariant
-from ..models.entities.gene import Gene  # Asegúrate de importar la entidad Gene
-from ..models.serializers.genetic_variant_serializer import GeneticVariantSerializer
+from ..models.entities.gene import Gene
 
 
 class GeneticVariantService:
 
     @staticmethod
     def list_variants():
-        """Obtiene todas las variantes genéticas de la base de datos."""
+        ##Obtiene todas las variantes geneticas de la base de datos
         return GeneticVariant.objects.all()
 
     @staticmethod
     def get_variant_by_id(variant_id: str):
-        """Obtiene una variante genética por su UUID."""
+        #Obtiene una variante genetica por su UUID
         try:
-            # Buscar la variante genética por UUID
+            # Busca la variante genetica por UUID
             variant = GeneticVariant.objects.get(id=variant_id)
             return variant
         except GeneticVariant.DoesNotExist:
@@ -31,10 +28,8 @@ class GeneticVariantService:
 
     @staticmethod
     def create_variant(data: dict):
-        """
-        Crea una nueva variante genética con validaciones de dominio.
-        Espera un dict ya validado por InDTOCreateGeneticVariant.
-        """
+
+        #Crea una nueva variante genetica
 
         gene_id = data.get("geneId")
         chromosome = data.get("chromosome")
@@ -43,7 +38,7 @@ class GeneticVariantService:
         alternate_base = data.get("alternateBase")
         impact = data.get("impact")
 
-        # 1) Campos obligatorios
+        #Campos obligatorios
         if gene_id is None:
             raise GeneticVariantFieldNotFilledException(
                 "The field 'geneId' is required."
@@ -74,7 +69,7 @@ class GeneticVariantService:
                 "The field 'impact' is required and cannot be empty."
             )
 
-        # 2) Formato de 'position'
+        # Formato de 'position'
         try:
             pos_int = int(position)
             if pos_int <= 0:
@@ -86,21 +81,21 @@ class GeneticVariantService:
                 "The field 'position' must be a valid integer."
             )
 
-        # Guardamos position normalizado en el dict
+
         data["position"] = pos_int
 
-        # 3) Normalizar strings (trim)
+        #Normaliza strings
         data["chromosome"] = str(chromosome).strip()
         data["referenceBase"] = str(reference_base).strip()
         data["alternateBase"] = str(alternate_base).strip()
         data["impact"] = str(impact).strip()
 
-        # 4) Validar que el gene exista
+        #Valida que el gene exista
         gene = Gene.objects.filter(id=gene_id).first()
         if not gene:
             raise GeneNotFoundException(f"Gene with id {gene_id} does not exist.")
 
-        # 4.5) ✅ Validar que NO exista una variante con exactamente los mismos datos
+        #Valida que no exista una variante con exactamente los mismos datos
         already_exists = GeneticVariant.objects.filter(
             geneId=gene,
             chromosome=data["chromosome"],
@@ -116,14 +111,14 @@ class GeneticVariantService:
                 "referenceBase, alternateBase and impact already exists."
             )
 
-        # 5) Crear la variante (pasando el objeto Gene, no el id)
+        #Crea la variante (pasando el objeto Gene, no el id)
         data["geneId"] = gene
         genetic_variant = GeneticVariant.objects.create(**data)
         return genetic_variant
 
     @staticmethod
     def update_variant(variant_id, data):
-        """Actualiza una variante genética por su ID (UUID)."""
+        #Actualiza una variante genética por su ID (UUID)
         try:
             # Obtener la variante genética existente
             variant = GeneticVariant.objects.get(id=variant_id)
@@ -134,7 +129,7 @@ class GeneticVariantService:
                 new_gene = Gene.objects.get(id=new_gene_id)
                 variant.geneId = new_gene  # Actualizamos el geneId con el nuevo Gene
 
-            # Actualizar solo los campos presentes en 'data', ignorando valores None
+            #Actualiza solo los campos presentes en data, ignorando valores None
             if 'chromosome' in data:
                 variant.chromosome = data['chromosome']
             if 'position' in data:
@@ -144,12 +139,12 @@ class GeneticVariantService:
             if 'alternateBase' in data:
                 variant.alternateBase = data['alternateBase']
             if 'impact' in data:
-                variant.impact = data['impact']  # Solo actualizamos impact si está presente en el JSON
+                variant.impact = data['impact']
 
-            # Guardamos la variante genética actualizada
+            # Guarda la variante genetica actualizada
             variant.save()
 
-            # Convertimos geneId a diccionario con la información relevante del Gene
+
             gene_data = {
                 "id": variant.geneId.id,
                 "symbol": variant.geneId.symbol,
@@ -157,10 +152,10 @@ class GeneticVariantService:
                 "functionSummary": variant.geneId.functionSummary,
             }
 
-            # Devolvemos la variante actualizada con el geneId como diccionario
+
             return {
                 "id": variant.id,
-                "geneId": gene_data,  # Solo los datos del Gene en un diccionario
+                "geneId": gene_data,
                 "chromosome": variant.chromosome,
                 "position": variant.position,
                 "referenceBase": variant.referenceBase,
@@ -188,8 +183,6 @@ class GeneticVariantService:
         try:
             variant.delete()
         except IntegrityError:
-            # Esto pasa si la variante está referenciada en patientvariantreport,
-            # y la FK no tiene ON DELETE CASCADE.
             raise GeneticVariantDeletionNotAllowedException(
                 "This genetic variant cannot be deleted because it is associated "
                 "with one or more patient variant reports."

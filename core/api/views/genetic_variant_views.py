@@ -15,11 +15,14 @@ from ..services.genetic_variant_service import GeneticVariantService
 from ..models.dto.inDTOCreateGeneticVariant import InDTOCreateGeneticVariant
 from ..models.dto.outDTOCreateGeneticVariant import OutDTOCreateGeneticVariant
 from pydantic import ValidationError
+from drf_yasg.utils import swagger_auto_schema
 
 class GeneticVariantViewSet(viewsets.ModelViewSet):
     queryset = GeneticVariant.objects.all()
     serializer_class = GeneticVariantSerializer
 
+    @swagger_auto_schema(
+        operation_description="Crea una nueva variante en la base de datos (Se necesita el ID del gene).")
     def create(self, request, *args, **kwargs):
         try:
             # 1) Validar input con Pydantic
@@ -62,12 +65,16 @@ class GeneticVariantViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    @swagger_auto_schema(
+        operation_description="Lista cada una de las variantes, mostrando tanto la información de las variantes y los genes.")
     def list(self, request, *args, **kwargs):
         variants = GeneticVariantService.list_variants()  # Obtenemos todas las variantes
 
         # Convertimos las variantes en el formato esperado del DTO
         return Response([OutDTOListGeneticVariant.from_orm(variant).dict() for variant in variants])
 
+    @swagger_auto_schema(
+        operation_description="Actualiza cada una de las variantes.")
     def update(self, request, *args, **kwargs):
         variant_id = kwargs.get('pk')  # Extraemos el ID de la variante desde la URL
 
@@ -83,7 +90,8 @@ class GeneticVariantViewSet(viewsets.ModelViewSet):
         # Si la actualización fue exitosa, devolvemos la variante actualizada con el Gene completo
         return Response(updated_variant, status=status.HTTP_200_OK)
 
-
+    @swagger_auto_schema(
+        operation_description="Elimina una variante.")
     def destroy(self, request, *args, **kwargs):
         """
         Elimina una variante genética usando su ID (UUID)

@@ -4,7 +4,7 @@ from typing import Optional, Dict
 
 class OutDTOUpdateGeneticVariant(BaseModel):
     id: str
-    geneId: Dict[str, str]  # El `geneId` ahora será un diccionario con la información completa del Gene
+    geneId: Dict[str, str]
     chromosome: str
     position: int
     referenceBase: str

@@ -8,5 +8,5 @@ class Gene(models.Model):
     functionSummary = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False  # No se migran las tablas, se usan las existentes
-        db_table = 'gene'  # El nombre de la tabla tal cual como está en la base de datos
+        managed = False
+        db_table = 'gene'  # El nombre de la tabla tal cual como en la base de datos

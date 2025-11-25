@@ -3,6 +3,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
 
 from ..models.entities.gene import Gene
 from ..models.serializers.gene_serializer import GeneSerializer
@@ -24,6 +25,8 @@ from pydantic import ValidationError
 class GeneViewSet(viewsets.ModelViewSet):
     queryset = Gene.objects.all()
     serializer_class = GeneSerializer
+    @swagger_auto_schema(
+        operation_description="Crea un nuevo gen en la base de datos.")
 
     def create(self, request, *args, **kwargs):
         try:
@@ -58,6 +61,8 @@ class GeneViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    @swagger_auto_schema(
+        operation_description="Actualiza un gen en la base de datos.")
     def update(self, request, *args, **kwargs):
         """
         Atualiza un gene existente usando el servicio y maneja excepciones de dominio.
@@ -99,6 +104,8 @@ class GeneViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    @swagger_auto_schema(
+        operation_description="Me lista cada uno de los genes creados en la base de datos.")
     def list(self, request, *args, **kwargs):
         genes = GeneService.list_genes()
         return Response([OutDTOListGene.from_orm(gene).dict() for gene in genes])
@@ -107,6 +114,9 @@ class GeneViewSet(viewsets.ModelViewSet):
         gene = self.get_object()
         return Response(OutDTOListGene.from_orm(gene).dict())
 
+
+    @swagger_auto_schema(
+        operation_description="Elimina a un gen según su ID.")
     def destroy(self, request, *args, **kwargs):
         gene = self.get_object()
         GeneService.delete_gene(gene)

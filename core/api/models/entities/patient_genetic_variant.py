@@ -1,4 +1,4 @@
-# core/api/models/entities/patient_genetic_variant.py
+
 from django.db import models
 from uuid import uuid4
 from .patient import Patient
@@ -9,17 +9,16 @@ class PatientGeneticVariant(models.Model):
         primary_key=True,
         max_length=36,
         db_column='id',
-        default=uuid4  # Django lo convertirá a str automáticamente
+        default=uuid4
     )
 
-    # OJO: nombre del campo en Django = patient
     patient = models.ForeignKey(
         Patient,
         on_delete=models.CASCADE,
         db_column='patientId'
     )
 
-    # nombre del campo en Django = variant
+
     variant = models.ForeignKey(
         GeneticVariant,
         on_delete=models.CASCADE,

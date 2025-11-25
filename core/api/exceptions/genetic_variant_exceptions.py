@@ -1,7 +1,5 @@
-# core/api/exceptions/genetic_variant_exceptions.py
-
 class GeneticVariantFieldNotFilledException(Exception):
-    """Campo obligatorio no rellenado en GeneticVariant."""
+    #Excepción  para campos obligatorios que no se han ingresado
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
@@ -11,7 +9,7 @@ class GeneticVariantFieldNotFilledException(Exception):
 
 
 class GeneticVariantInvalidDataFormatException(Exception):
-    """Formato de dato inválido en GeneticVariant."""
+    #Excepción para campos con formato invalido
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
@@ -21,7 +19,7 @@ class GeneticVariantInvalidDataFormatException(Exception):
 
 
 class GeneNotFoundException(Exception):
-    """El Gene asociado a la variante no existe."""
+    #Excepcion para cuando el gene asociado a la variante no existe
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
@@ -31,7 +29,7 @@ class GeneNotFoundException(Exception):
 
 
 class GeneticVariantNotFoundException(Exception):
-    """La variante genética no existe."""
+    #Excepcion para cuando la variante genetica no existe
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
@@ -40,7 +38,7 @@ class GeneticVariantNotFoundException(Exception):
         return self.message
 
 class GeneticVariantDeletionNotAllowedException(Exception):
-    """No se puede eliminar la variante (por ejemplo, tiene asociaciones)."""
+    #Excepcion para cuando no se puede eliminar la variante
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
@@ -48,11 +46,8 @@ class GeneticVariantDeletionNotAllowedException(Exception):
     def __str__(self):
         return self.message
 
-
-# core/api/exceptions/genetic_variant_exceptions.py
-
 class GeneticVariantAlreadyExistsException(Exception):
-    """Se lanza cuando se intenta crear una variante genética duplicada."""
+    #Excepcion para cuando se intenta crear una variante genetica duplicada
     def __init__(self, message="Genetic variant already exists with the same data"):
         self.message = message
         super().__init__(self.message)
@@ -62,7 +57,7 @@ class GeneticVariantAlreadyExistsException(Exception):
 
 
 class GeneForVariantNotFoundException(Exception):
-    """Se lanza cuando el geneId asociado a la variante no existe."""
+    #Excepcion para cuando el geneId asociado a la variante no existe
     def __init__(self, message="Gene for this variant was not found"):
         self.message = message
         super().__init__(self.message)

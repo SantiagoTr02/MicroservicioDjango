@@ -11,6 +11,6 @@ class Patient(models.Model):
 
 
     class Meta:
-        db_table = 'patient'  # Nombre de la tabla tal como está en la base de datos
+        db_table = 'patient'  # Nombre de la tabla tal cual como en la base de datos
     def __str__(self):
         return f"{self.firstName} {self.lastName}"

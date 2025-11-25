@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from uuid import UUID
 
 class OutDTOCreateGeneticVariant(BaseModel):
-    id: str  # Convertimos el UUID a string
-    geneId: int  # Devolvemos solo el ID del gene (entero)
+    id: str
+    geneId: int
     chromosome: str
     position: int
     referenceBase: str
@@ -11,14 +11,13 @@ class OutDTOCreateGeneticVariant(BaseModel):
     impact: str
 
     class Config:
-        from_attributes = True  # Permite que los datos se extraigan de los objetos ORM de Django
+        from_attributes = True
 
     @classmethod
     def from_orm(cls, obj):
-        # Customizamos la conversión de objetos ORM a DTO para asegurar el formato correcto
         return cls(
-            id=str(obj.id),  # Convertimos el UUID a string
-            geneId=obj.geneId.id,  # Extraemos solo el ID del objeto gene
+            id=str(obj.id),
+            geneId=obj.geneId.id,
             chromosome=obj.chromosome,
             position=obj.position,
             referenceBase=obj.referenceBase,

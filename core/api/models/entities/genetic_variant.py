@@ -12,5 +12,5 @@ class GeneticVariant(models.Model):
     impact = models.CharField(max_length=50)
 
     class Meta:
-        managed = False  # No gestionamos las migraciones, se usa la base existente
-        db_table = 'geneticvariant'  # Nombre de la tabla tal como está en la base de datos
+        managed = False
+        db_table = 'geneticvariant'  # Nombre de la tabla tal cual como en la base de datos

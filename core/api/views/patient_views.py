@@ -10,13 +10,13 @@ from pydantic import ValidationError
 class CreatePatientView(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            # Validar los datos de entrada usando InDTOCreatePatient
+            #Valida los datos de entrada usando InDTOCreatePatient
             patient_data = InDTOCreatePatient(**request.data)
 
-            # Usamos el servicio para crear el paciente
+            #Usa el servicio para crear el paciente
             result = PatientService.create_patient(patient_data.dict())
 
-            # El servicio devuelve una Response, ya no es necesario usar .dict() aquí
+            #El servicio devuelve una Response
             return Response(result.data, status=status.HTTP_201_CREATED)
 
         except ValidationError as e:
