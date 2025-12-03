@@ -1,5 +1,8 @@
 # core/api/services/patient_genetic_variant_service.py
 from uuid import uuid4
+import requests
+
+from django.conf import settings
 
 from ..exceptions.patient_genetic_variant_exceptions import PatientGeneticVariantAlreadyExistsException, \
     PatientGeneticVariantFieldNotFilledException, PatientGeneticVariantInvalidDataFormatException
@@ -24,7 +27,26 @@ class GeneticVariantPatientService:
         try:
             patient = Patient.objects.get(id=patientId)
         except Patient.DoesNotExist:
-            return {"detail": "Patient not found"}, 404
+            # Intentar consultar el microservicio externo de pacientes
+            try:
+                external_base = getattr(settings, 'EXTERNAL_PATIENT_SERVICE_BASE', 'http://clinic:3000')
+                url = f"{external_base.rstrip('/')}/patients/{patientId}"
+                resp = requests.get(url, timeout=5)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    # Crear paciente localmente con los campos mínimos que tengamos
+                    patient = Patient.objects.create(
+                        id=data.get('id'),
+                        firstName=data.get('firstName', '')[:100],
+                        lastName=data.get('lastName', '')[:100],
+                        birthDate=data.get('birthDate') or '1900-01-01',
+                        gender=data.get('gender', 'Other'),
+                        status=data.get('status', 'Activo'),
+                    )
+                else:
+                    return {"detail": "Patient not found"}, 404
+            except requests.RequestException:
+                return {"detail": "Patient not found"}, 404
 
         # Validar existencia de la variante genética
         try:

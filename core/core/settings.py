@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,11 +85,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'genosentinel',
-        'USER': 'root',
-        'PASSWORD': '30400669sss*',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME', 'genosentinel'),
+        'USER': os.getenv('DB_USER', 'appuser'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'apppass'),
+        'HOST': os.getenv('DB_HOST', 'mysql'),
+        'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4'
         }
