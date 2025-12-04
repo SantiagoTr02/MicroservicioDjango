@@ -4,6 +4,7 @@ sqlparse==0.5.3
 tzdata==2025.2
 djangorestframework==3.16.1
 drf_yasg==1.21.11
-pydantic==2.5.0
+pydantic==2.7.1
 mysqlclient==2.2.7
 PyYAML==6.0.3
+requests==2.31.0
